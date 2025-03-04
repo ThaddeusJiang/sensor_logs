@@ -22,7 +22,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/974746135323/locations/global/workloadIdentityPools/github-pool-01/providers/github-provider
-          service_account: sensor-logs-sa@dev-iot-452706.iam.gserviceaccount.com
+          service_account: 974746135323-compute@developer.gserviceaccount.com
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -35,16 +35,3 @@ jobs:
           cd apps/bigquery-worker
           docker build -t asia-northeast1-docker.pkg.dev/dev-iot-452706/bigquery-worker/worker:latest .
           docker push asia-northeast1-docker.pkg.dev/dev-iot-452706/bigquery-worker/worker:latest
-
-      - name: Deploy to Cloud Run
-        run: |-
-          gcloud run deploy bigquery-worker \
-            --image asia-northeast1-docker.pkg.dev/dev-iot-452706/bigquery-worker/worker:latest \
-            --region asia-northeast1 \
-            --platform managed \
-            --no-allow-unauthenticated \
-            --min-instances=1 \
-            --max-instances=10 \
-            --cpu=1 \
-            --memory=512Mi \
-            --set-env-vars="GOOGLE_CLOUD_PROJECT=dev-iot-452706"
