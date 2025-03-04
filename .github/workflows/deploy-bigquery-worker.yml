@@ -47,4 +47,4 @@ jobs:
             --max-instances=10 \
             --cpu=1 \
             --memory=512Mi \
-            --set-env-vars="GOOGLE_CLOUD_PROJECT=dev-iot-452706"
+            --set-env-vars="GOOGLE_CLOUD_PROJECT=dev-iot-452706,LISTEN_ON_PORT=false"

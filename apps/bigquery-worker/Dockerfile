@@ -11,5 +11,8 @@ RUN bun install
 # 复制源代码
 COPY src ./src
 
+# 设置环境变量，告诉 Cloud Run 这不是 web 服务
+ENV LISTEN_ON_PORT=false
+
 # 启动应用
 CMD ["bun", "start"]

@@ -102,3 +102,10 @@ resource "google_project_iam_member" "service_account_user" {
   role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
 }
+
+# 添加 Cloud Run Admin 权限
+resource "google_project_iam_member" "cloud_run_admin" {
+  project = var.project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
+}
