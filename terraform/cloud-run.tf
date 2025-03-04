@@ -37,7 +37,8 @@ resource "google_cloud_run_v2_service" "worker" {
       max_instance_count = 10
     }
 
-    service_account = data.google_service_account.sensor_logs_sa.email
+    # 使用默认的计算服务账号
+    service_account = "${var.project_number}-compute@developer.gserviceaccount.com"
   }
 }
 
