@@ -22,7 +22,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/974746135323/locations/global/workloadIdentityPools/github-pool-01/providers/github-provider
-          service_account: 974746135323-compute@developer.gserviceaccount.com
+          service_account: sensor-logs-sa@dev-iot-452706.iam.gserviceaccount.com
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
