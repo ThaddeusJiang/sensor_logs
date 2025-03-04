@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+
 import { PubSub } from '@google-cloud/pubsub';
 
 // 验证环境变量
@@ -9,7 +9,7 @@ if (!credentialsPath) {
 
 // 配置
 const config = {
-    projectId: 'dev-iot-452706',
+    projectId: process.env.GOOGLE_CLOUD_PROJECT,
     topicName: 'sensor-logs-topic',
     // 模拟的传感器数量
     deviceCount: 3,

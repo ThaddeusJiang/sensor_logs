@@ -6,9 +6,9 @@
         "apps/*"
     ],
     "scripts": {
-        "client": "bun run --cwd apps/iot-client start",
-        "client:dev": "bun run --cwd apps/iot-client dev",
-        "client:verify": "bun run --cwd apps/iot-client verify",
+        "iot": "bun run --cwd apps/iot-client start",
+        "iot:dev": "bun run --cwd apps/iot-client dev",
+        "iot:verify": "bun run --cwd apps/iot-client verify",
         "bq": "bun run --cwd apps/bigquery-worker start",
         "bg:dev": "bun run --cwd apps/bigquery-worker dev"
     }
