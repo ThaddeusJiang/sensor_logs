@@ -39,6 +39,11 @@ resource "google_cloud_run_v2_job" "worker" {
       service_account = data.google_service_account.sensor_logs_sa.email
     }
   }
+
+  lifecycle {
+    prevent_destroy = false
+  }
+  deletion_protection = false
 }
 
 # IAM 配置

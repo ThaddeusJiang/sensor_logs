@@ -1,165 +1,170 @@
-# IoT 数据处理基础设施
+# IoT Data Processing Infrastructure
 
-本项目提供了一个完整的 IoT 数据处理解决方案，包括基础设施配置和模拟客户端。使用 Terraform 在 Google Cloud Platform (GCP) 上创建基础设施，并提供 TypeScript 客户端用于模拟 IoT 设备数据。
+This project provides a complete IoT data processing solution, including infrastructure configuration and simulation clients. It uses Terraform to create infrastructure on Google Cloud Platform (GCP) and provides a TypeScript client for simulating IoT device data.
 
-## 项目组件
+## Components
 
-1. **基础设施 (Infrastructure)**
-   - 使用 Terraform 管理 GCP 资源
-   - 包含 BigQuery、Pub/Sub 和必要的 IAM 配置
+1. **Infrastructure**
+   - GCP resources managed with Terraform
+   - Includes BigQuery, Pub/Sub, and necessary IAM configurations
 
-2. **IoT 模拟客户端 (apps/iot-client)**
-   - TypeScript 应用程序
-   - 模拟多个 IoT 设备发送数据
-   - 支持配置设备数量和发送频率
+2. **IoT Simulation Client (apps/iot-client)**
+   - TypeScript application
+   - Simulates multiple IoT devices
+   - Configurable device count and transmission frequency
 
-## 架构概述
+## Architecture Overview
 
-项目创建和使用以下 GCP 资源：
+The project creates and uses the following GCP resources:
 
 1. **BigQuery Dataset & Table**
    - Dataset: `iot_data`
-   - Table: `sensor_logs`（按天分区，按 device_id 聚类）
-   - 用于存储处理后的传感器数据
+   - Table: `sensor_logs` (partitioned by day, clustered by device_id)
+   - Stores processed sensor data
 
 2. **Cloud Pub/Sub**
    - Topic: `sensor-logs-topic`
-   - 用于接收实时传感器数据
+   - Receives real-time sensor data
 
 3. **Service Account**
-   - 用于客户端应用程序和 Dataflow 作业
-   - 包含必要的 IAM 权限
+   - Used for client applications and Dataflow jobs
+   - Includes necessary IAM permissions
 
-## 数据模型
+## Data Model
 
-传感器数据表结构如下：
+Sensor data table structure:
 
-| 字段名 | 类型 | 模式 | 描述 |
-|--------|------|------|------|
-| device_id | STRING | REQUIRED | 设备 ID |
-| sensor_id | STRING | REQUIRED | 传感器 ID |
-| timestamp | TIMESTAMP | REQUIRED | 数据时间 |
-| temperature | FLOAT64 | NULLABLE | 温度 |
-| humidity | FLOAT64 | NULLABLE | 湿度 |
-| voltage | FLOAT64 | NULLABLE | 电压 |
-| error_code | STRING | NULLABLE | 故障代码 |
-| status | STRING | NULLABLE | 设备状态 |
+| Field Name | Type | Mode | Description |
+|------------|------|------|-------------|
+| device_id | STRING | REQUIRED | Device ID |
+| sensor_id | STRING | REQUIRED | Sensor ID |
+| timestamp | TIMESTAMP | REQUIRED | Data timestamp |
+| temperature | FLOAT64 | NULLABLE | Temperature |
+| humidity | FLOAT64 | NULLABLE | Humidity |
+| voltage | FLOAT64 | NULLABLE | Voltage |
+| error_code | STRING | NULLABLE | Error code |
+| status | STRING | NULLABLE | Device status |
 
-## 快速开始
+## Quick Start
 
-### 基础设施部署
+### Infrastructure Deployment
 
-1. 安装前置条件：
+1. Install prerequisites:
    - [Terraform](https://developer.hashicorp.com/terraform/downloads)
    - [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 
-2. 配置 GCP 认证：
+2. Configure GCP authentication:
    ```bash
    gcloud auth application-default login
    ```
 
-3. 克隆项目并进入目录：
+3. Clone and enter the project:
    ```bash
    git clone https://github.com/your-repo/iot-data-processing.git
    cd iot-data-processing
    ```
 
-4. 更新 `terraform.tfvars`：
+4. Update `terraform.tfvars`:
    ```hcl
    project_id = "your-project-id"
    region     = "asia-northeast1"
    ```
 
-5. 初始化并部署：
+5. Initialize and deploy:
    ```bash
    terraform init
    terraform plan
    terraform apply
    ```
 
-### 客户端设置
+### Client Setup
 
-1. 进入客户端目录：
+1. Enter client directory:
    ```bash
    cd apps/iot-client
    ```
 
-2. 安装依赖：
+2. Install dependencies:
    ```bash
    bun install
    ```
 
-3. 配置环境变量：
+3. Configure environment:
    ```bash
    cp .env.example .env
-   # 编辑 .env 文件设置必要的配置
+   # Edit .env file with necessary configurations
    ```
 
-4. 运行客户端：
+4. Run client:
    ```bash
    bun start
    ```
 
-## 项目结构
+## Project Structure
 
 ```
 .
 ├── README.md
-├── main.tf           # Terraform 主配置
-├── variables.tf      # 变量定义
-├── outputs.tf        # 输出定义
-├── terraform.tfvars  # 变量值
+├── main.tf           # Main Terraform configuration
+├── variables.tf      # Variable definitions
+├── outputs.tf        # Output definitions
+├── terraform.tfvars  # Variable values
 ├── apps/
-│   ├── bigquery-worker/ # BigQuery 数据处理作业
-│   └── iot-client/   # TypeScript 模拟客户端
+│   ├── bigquery-worker/ # BigQuery data processing jobs
+│   └── iot-client/   # TypeScript simulation client
 └── .gitignore
 ```
 
-## 性能优化
+## Performance Optimization
 
-1. BigQuery 表优化：
-   - 按天分区（timestamp）
-   - 按 device_id 聚类
-   - 优化查询性能和成本
+1. BigQuery Table Optimization:
+   - Daily partitioning (timestamp)
+   - Clustering by device_id
+   - Query performance and cost optimization
 
-2. 客户端优化：
-   - 批量发送消息
-   - 可配置的重试机制
-   - 错误处理和日志记录
+2. Client Optimization:
+   - Batch message sending
+   - Configurable retry mechanism
+   - Error handling and logging
 
-## 安全考虑
+## Security Considerations
 
-1. 服务账号权限：
-   - 遵循最小权限原则
-   - 主要权限：
+1. Service Account Permissions:
+   - Follows principle of least privilege
+   - Main permissions:
      - `roles/pubsub.publisher`
      - `roles/bigquery.dataEditor`
 
-2. 认证：
-   - 使用服务账号密钥文件
-   - 支持环境变量配置
+2. Authentication:
+   - Uses service account key files
+   - Supports environment variables
 
-## 版本要求
+## Version Requirements
 
 - Terraform >= 1.0
 - Google Provider >= 6.8.0
 - Node.js >= 16.0.0
 - TypeScript >= 4.0.0
 
-## 清理资源
+## Resource Cleanup
 
-删除所有创建的资源：
+To delete all created resources:
 ```bash
 terraform destroy
 ```
 
-## 贡献指南
+## Contributing
 
-欢迎提交 Pull Requests！请确保：
-1. 代码符合项目规范
-2. 更新相关文档
-3. 添加必要的测试
+Pull Requests are welcome! Please ensure:
+1. Code follows project standards
+2. Documentation is updated
+3. Tests are added as needed
 
-## 许可证
+## License
 
 MIT
+
+## Documentation
+- English: README.md (this file)
+- 中文: [README-zh.md](README-zh.md)
+- 日本語: [README-ja.md](README-ja.md)
