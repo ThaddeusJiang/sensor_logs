@@ -95,3 +95,10 @@ resource "google_project_iam_member" "cloud_run_developer" {
   role    = "roles/run.developer"
   member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
 }
+
+# 添加 Service Account User 权限
+resource "google_project_iam_member" "service_account_user" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
+}
