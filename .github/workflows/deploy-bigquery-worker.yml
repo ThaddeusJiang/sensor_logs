@@ -42,7 +42,7 @@ jobs:
             --image asia-northeast1-docker.pkg.dev/dev-iot-452706/bigquery-worker/worker:latest \
             --region asia-northeast1 \
             --platform managed \
-            --allow-unauthenticated=false \
+            --no-allow-unauthenticated \
             --min-instances=1 \
             --max-instances=10 \
             --cpu=1 \
