@@ -13,42 +13,42 @@ resource "google_artifact_registry_repository" "worker" {
 }
 
 # Cloud Run 服务
-# resource "google_cloud_run_v2_service" "worker" {
-#   project  = var.project_id
-#   name     = "bigquery-worker"
-#   location = var.region
-#
-#   deletion_protection = false # 允许删除服务
-#
-#   template {
-#     containers {
-#       image = "${var.region}-docker.pkg.dev/${var.project_id}/bigquery-worker/worker:latest"
-#
-#       resources {
-#         limits = {
-#           cpu    = "1000m"
-#           memory = "512Mi"
-#         }
-#       }
-#     }
-#
-#     scaling {
-#       min_instance_count = 1
-#       max_instance_count = 10
-#     }
-#
-#     service_account = "${var.project_number}-compute@developer.gserviceaccount.com"
-#   }
-# }
+resource "google_cloud_run_v2_service" "worker" {
+  project  = var.project_id
+  name     = "bigquery-worker"
+  location = var.region
+
+  deletion_protection = false # 允许删除服务
+
+  template {
+    containers {
+      image = "${var.region}-docker.pkg.dev/${var.project_id}/bigquery-worker/worker:latest"
+
+      resources {
+        limits = {
+          cpu    = "1000m"
+          memory = "512Mi"
+        }
+      }
+    }
+
+    scaling {
+      min_instance_count = 1
+      max_instance_count = 10
+    }
+
+    service_account = data.google_service_account.sensor_logs_sa.email
+  }
+}
 
 # IAM 配置
-# resource "google_cloud_run_service_iam_member" "worker_invoker" {
-#   project  = var.project_id
-#   location = google_cloud_run_v2_service.worker.location
-#   service  = google_cloud_run_v2_service.worker.name
-#   role     = "roles/run.invoker"
-#   member   = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
-# }
+resource "google_cloud_run_service_iam_member" "worker_invoker" {
+  project  = var.project_id
+  location = google_cloud_run_v2_service.worker.location
+  service  = google_cloud_run_v2_service.worker.name
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
+}
 
 # Workload Identity Federation 配置
 resource "google_iam_workload_identity_pool" "github" {
