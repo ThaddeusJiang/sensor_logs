@@ -86,7 +86,7 @@
 
 2. 安装依赖：
    ```bash
-   npm install
+   bun install
    ```
 
 3. 配置环境变量：
@@ -97,7 +97,7 @@
 
 4. 运行客户端：
    ```bash
-   npm start
+   bun start
    ```
 
 ## 项目结构
@@ -110,7 +110,7 @@
 ├── outputs.tf        # 输出定义
 ├── terraform.tfvars  # 变量值
 ├── apps/
-│   ├── data-pipeline/ # 数据处理管道
+│   ├── bigquery-worker/ # BigQuery 数据处理作业
 │   └── iot-client/   # TypeScript 模拟客户端
 └── .gitignore
 ```

@@ -4,7 +4,7 @@
     "": {
       "name": "iot-data-processing",
     },
-    "apps/dataflow": {
+    "apps/bigquery-worker": {
       "name": "sensor-logs-dataflow",
       "version": "1.0.0",
       "dependencies": {
@@ -237,7 +237,7 @@
 
     "safe-buffer": ["safe-buffer@5.2.1", "", {}, "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ=="],
 
-    "sensor-logs-dataflow": ["sensor-logs-dataflow@workspace:apps/dataflow"],
+    "sensor-logs-dataflow": ["sensor-logs-dataflow@workspace:apps/bigquery-worker"],
 
     "stream-events": ["stream-events@1.0.5", "", { "dependencies": { "stubs": "^3.0.0" } }, "sha512-E1GUzBSgvct8Jsb3v2X15pjzN1tYebtbLaMg+eBOUOAxgbLoSbT2NS91ckc5lJD1KfLjId+jXJRgo0qnV5Nerg=="],
 

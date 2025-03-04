@@ -9,7 +9,7 @@
         "client": "bun run --cwd apps/iot-client start",
         "client:dev": "bun run --cwd apps/iot-client dev",
         "client:verify": "bun run --cwd apps/iot-client verify",
-        "pipeline": "bun run --cwd apps/data-pipeline start",
-        "pipeline:dev": "bun run --cwd apps/data-pipeline dev"
+        "bq": "bun run --cwd apps/bigquery-worker start",
+        "bg:dev": "bun run --cwd apps/bigquery-worker dev"
     }
 }
