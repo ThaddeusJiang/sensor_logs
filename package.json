@@ -1,0 +1,15 @@
+{
+    "name": "iot-data-processing",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
+    "scripts": {
+        "client": "bun run --cwd apps/iot-client start",
+        "client:dev": "bun run --cwd apps/iot-client dev",
+        "client:verify": "bun run --cwd apps/iot-client verify",
+        "pipeline": "bun run --cwd apps/data-pipeline start",
+        "pipeline:dev": "bun run --cwd apps/data-pipeline dev"
+    }
+}

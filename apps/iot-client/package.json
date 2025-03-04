@@ -1,0 +1,17 @@
+{
+    "name": "iot-sensor-client",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "start": "bun run src/index.ts",
+        "dev": "bun --watch run src/index.ts",
+        "verify": "bun run src/verify.ts"
+    },
+    "dependencies": {
+        "@google-cloud/pubsub": "^4.3.2"
+    },
+    "devDependencies": {
+        "bun-types": "latest",
+        "@types/node": "^20.11.24"
+    }
+}

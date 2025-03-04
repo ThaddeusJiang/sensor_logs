@@ -94,27 +94,35 @@ resource "google_pubsub_topic" "sensor_logs_topic" {
 }
 
 # 创建 Service Account 用于 Dataflow
-resource "google_service_account" "dataflow_service_account" {
-  account_id   = "dataflow-sa"
-  display_name = "Dataflow Service Account"
-  description  = "Service Account for Dataflow jobs"
+resource "google_service_account" "sensor_logs_sa" {
+  account_id   = "sensor-logs-sa"
+  display_name = "IoT Data Processing Service Account"
+  description  = "Service Account for IoT data processing (Pub/Sub, Dataflow, BigQuery)"
+}
+
+# 为服务账号添加项目级别的权限
+resource "google_project_iam_member" "project_viewer" {
+  project = var.project_id
+  role    = "roles/pubsub.viewer"
+  member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
+}
+
+# 添加 Pub/Sub Admin 权限
+resource "google_project_iam_member" "pubsub_admin" {
+  project = var.project_id
+  role    = "roles/pubsub.admin"
+  member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
 }
 
 # 为 Service Account 添加必要的权限
 resource "google_project_iam_member" "dataflow_worker" {
   project = var.project_id
   role    = "roles/dataflow.worker"
-  member  = "serviceAccount:${google_service_account.dataflow_service_account.email}"
+  member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
 }
 
 resource "google_project_iam_member" "bigquery_data_editor" {
   project = var.project_id
   role    = "roles/bigquery.dataEditor"
-  member  = "serviceAccount:${google_service_account.dataflow_service_account.email}"
-}
-
-resource "google_project_iam_member" "pubsub_subscriber" {
-  project = var.project_id
-  role    = "roles/pubsub.subscriber"
-  member  = "serviceAccount:${google_service_account.dataflow_service_account.email}"
+  member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
 }

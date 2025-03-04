@@ -7,5 +7,5 @@ output "pubsub_topic" {
 }
 
 output "service_account_email" {
-  value = google_service_account.dataflow_service_account.email
+  value = google_service_account.sensor_logs_sa.email
 }

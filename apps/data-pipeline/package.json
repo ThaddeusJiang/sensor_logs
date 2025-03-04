@@ -1,0 +1,17 @@
+{
+    "name": "sensor-logs-dataflow",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "start": "bun run src/pipeline.ts",
+        "dev": "bun --watch run src/pipeline.ts"
+    },
+    "dependencies": {
+        "@google-cloud/bigquery": "^7.5.0",
+        "@google-cloud/pubsub": "^4.3.2"
+    },
+    "devDependencies": {
+        "bun-types": "latest",
+        "@types/node": "^20.11.24"
+    }
+}
