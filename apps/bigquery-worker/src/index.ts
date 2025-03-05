@@ -10,6 +10,9 @@ const server = Bun.serve({
 
 console.log(`🦊 Server is running at http://localhost:${server.port}`);
 
+// 等待服务器准备就绪
+await new Promise(resolve => setTimeout(resolve, 1000));
+
 // 启动后台管道
 startSubscription().catch((error: unknown) => {
     console.error('Subscription failed:', error);

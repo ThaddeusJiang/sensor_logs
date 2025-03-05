@@ -37,24 +37,6 @@ resource "google_cloud_run_service" "worker" {
   }
 }
 
-# IAM 配置
-resource "google_cloud_run_service_iam_member" "worker_invoker" {
-  project  = var.project_id
-  location = google_cloud_run_service.worker.location
-  service  = google_cloud_run_service.worker.name
-  role     = "roles/run.invoker"
-  member   = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
-}
-
-# 添加 PubSub 触发器配置
-resource "google_cloud_run_service_iam_member" "pubsub_invoker" {
-  project  = var.project_id
-  location = google_cloud_run_service.worker.location
-  service  = google_cloud_run_service.worker.name
-  role     = "roles/run.invoker"
-  member   = "serviceAccount:service-${var.project_number}@gcp-sa-pubsub.iam.gserviceaccount.com"
-}
-
 # 添加 Artifact Registry 权限
 resource "google_project_iam_member" "artifact_registry_writer" {
   project = var.project_id
