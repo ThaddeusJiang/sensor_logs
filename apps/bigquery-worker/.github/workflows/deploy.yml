@@ -1,0 +1,66 @@
+name: Deploy BigQuery Worker
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/bigquery-worker/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.2
+
+      - name: Install dependencies
+        working-directory: ./apps/bigquery-worker
+        run: bun install
+
+      - name: Run tests
+        working-directory: ./apps/bigquery-worker
+        run: bun test
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/974746135323/locations/global/workloadIdentityPools/github-pool-02/providers/github-provider
+          service_account: sensor-logs-sa@dev-iot-452706.iam.gserviceaccount.com
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker
+        run: |
+          gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+
+      - name: Build and Push Docker image
+        working-directory: ./apps/bigquery-worker
+        env:
+          REGION: asia-northeast1
+          PROJECT_ID: dev-iot-452706
+        run: |
+          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }} .
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }}
+          docker tag $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }} \
+            $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:latest
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:latest
+
+      - name: Deploy to Cloud Run
+        working-directory: ./apps/bigquery-worker/terraform
+        env:
+          TF_VAR_project_id: dev-iot-452706
+          TF_VAR_region: asia-northeast1
+        run: |
+          terraform init
+          terraform apply -auto-approve

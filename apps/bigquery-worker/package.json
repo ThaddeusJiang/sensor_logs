@@ -4,7 +4,11 @@
     "type": "module",
     "scripts": {
         "start": "bun run src/pipeline.ts",
-        "dev": "bun --watch run src/pipeline.ts"
+        "dev": "bun --watch run src/pipeline.ts",
+        "test": "bun test",
+        "build": "bun build src/pipeline.ts --target=bun",
+        "format": "prettier --write .",
+        "lint": "eslint . --ext .ts"
     },
     "dependencies": {
         "@google-cloud/bigquery": "^7.5.0",
@@ -12,6 +16,10 @@
     },
     "devDependencies": {
         "bun-types": "latest",
-        "@types/node": "^20.11.24"
+        "@types/node": "^20.11.24",
+        "@typescript-eslint/eslint-plugin": "^7.0.0",
+        "@typescript-eslint/parser": "^7.0.0",
+        "eslint": "^8.56.0",
+        "prettier": "^3.2.5"
     }
 }

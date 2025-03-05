@@ -1,18 +1,13 @@
-FROM oven/bun:1.0.30
+FROM oven/bun:1.2.2
 
 WORKDIR /app
 
-# 只复制当前目录的依赖文件
-COPY package.json ./
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
 
-# 安装依赖
-RUN bun install
+COPY . .
 
-# 复制源代码
-COPY src ./src
-
-# 设置环境变量，告诉 Cloud Run 这不是 web 服务
+ENV GOOGLE_CLOUD_PROJECT=dev-iot-452706
 ENV LISTEN_ON_PORT=false
 
-# 启动应用
 CMD ["bun", "start"]
