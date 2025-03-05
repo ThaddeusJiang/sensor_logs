@@ -21,7 +21,7 @@
 思路：
 
 1. IoT 设备数据通过 MQTT 协议发送数据，然后通过 Google Cloud Pub/Sub 接收数据，然后进行数据分析和处理。
-2. 使用 Google Cloud Dataflow 处理数据，批量插入到 BigQuery 中。
+2. 处理数据，批量插入到 BigQuery 中。
 
 # 4. 项目测试
 

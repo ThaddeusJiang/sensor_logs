@@ -1,5 +1,5 @@
 {
-    "name": "sensor-logs-dataflow",
+    "name": "sensor-logs",
     "version": "1.0.0",
     "type": "module",
     "scripts": {

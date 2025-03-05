@@ -27,8 +27,8 @@ The project creates and uses the following GCP resources:
    - Receives real-time sensor data
 
 3. **Service Account**
-   - Used for client applications and Dataflow jobs
-   - Includes necessary IAM permissions
+   - Used for client applications
+   - Includes necessary IAM permissions for Pub/Sub and BigQuery
 
 ## Data Model
 
