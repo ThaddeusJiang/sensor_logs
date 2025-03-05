@@ -55,12 +55,3 @@ jobs:
           docker tag $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }} \
             $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:latest
           docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:latest
-
-      - name: Deploy to Cloud Run
-        working-directory: ./apps/bigquery-worker/terraform
-        env:
-          TF_VAR_project_id: dev-iot-452706
-          TF_VAR_region: asia-northeast1
-        run: |
-          terraform init
-          terraform apply -auto-approve
