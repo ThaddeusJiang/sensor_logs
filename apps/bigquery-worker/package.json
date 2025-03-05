@@ -6,8 +6,6 @@
         "start": "bun run src/index.ts",
         "dev": "bun --watch run src/index.ts",
         "test": "bun test",
-        "build": "bun build src/pipeline.ts --target=bun",
-        "init-sensors": "bun run src/init-sensors.ts",
         "format": "prettier --write .",
         "lint": "eslint . --ext .ts"
     },

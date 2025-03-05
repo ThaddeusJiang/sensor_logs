@@ -1,5 +1,5 @@
 import { BigQuery } from '@google-cloud/bigquery';
-import { fetchSensors } from "./sensors"
+import { fetchSensors } from "../models/sensors"
 
 const bigquery = new BigQuery();
 

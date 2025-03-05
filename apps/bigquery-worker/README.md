@@ -127,6 +127,12 @@ BigQuery table schema:
 - Partitioned by day using `timestamp` field
 - Clustered by `device_id` for query optimization
 
+## Init Sensors
+
+```bash
+bun run src/scripts/init-sensors.ts
+```
+
 ## Performance Considerations
 
 - Uses batch processing to optimize BigQuery insertions

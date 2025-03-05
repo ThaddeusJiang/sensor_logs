@@ -83,7 +83,7 @@ async function processBatch() {
 }
 
 // 启动订阅
-export async function startSubscription() {
+export async function startTransporting() {
     const subscription = pubsub.subscription(config.subscriptionName);
 
     subscription.on('message', handleMessage);

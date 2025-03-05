@@ -1,4 +1,6 @@
-import { startSubscription } from './pipeline';
+import { startMonitoring } from './monitor';
+import { startTransporting } from './transporter/pipeline';
+
 
 // 启动 HTTP 服务器（仅用于健康检查）
 const server = Bun.serve({
@@ -14,7 +16,13 @@ console.log(`🦊 Server is running at http://localhost:${server.port}`);
 await new Promise(resolve => setTimeout(resolve, 1000));
 
 // 启动后台管道
-startSubscription().catch((error: unknown) => {
+startTransporting().catch((error: unknown) => {
     console.error('Subscription failed:', error);
+    process.exit(1);
+});
+
+// 启动监控
+startMonitoring().catch((error: unknown) => {
+    console.error('Monitoring failed:', error);
     process.exit(1);
 });

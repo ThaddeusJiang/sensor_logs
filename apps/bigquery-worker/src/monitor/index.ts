@@ -11,7 +11,7 @@ async function monitorDevices() {
 }
 
 // 初始化并启动监控
-async function start() {
+export async function startMonitoring() {
     try {
         // 启动定时监控
         setInterval(monitorDevices, CHECK_INTERVAL);
@@ -21,5 +21,3 @@ async function start() {
         process.exit(1);
     }
 }
-
-start();
