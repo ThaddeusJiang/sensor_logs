@@ -1,13 +1,12 @@
-FROM oven/bun:1.2.2
+FROM oven/bun:1
 
 WORKDIR /app
+COPY package.json .
 
-COPY package.json ./
-RUN bun install --frozen-lockfile
 
-COPY . .
+RUN bun install --production
 
-ENV GOOGLE_CLOUD_PROJECT=dev-iot-452706
-ENV LISTEN_ON_PORT=false
+COPY src src
 
+ENV PORT=8080
 CMD ["bun", "start"]

@@ -83,7 +83,7 @@ async function processBatch() {
 }
 
 // 启动订阅
-async function startSubscription() {
+export async function startSubscription() {
     const subscription = pubsub.subscription(config.subscriptionName);
 
     subscription.on('message', handleMessage);
@@ -101,10 +101,4 @@ process.on('SIGTERM', async () => {
         await processBatch();
     }
     process.exit(0);
-});
-
-// 启动服务
-startSubscription().catch(error => {
-    console.error('Failed to start subscription:', error);
-    process.exit(1);
 });

@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "start": "bun run src/pipeline.ts",
-        "dev": "bun --watch run src/pipeline.ts",
+        "start": "bun run src/index.ts",
+        "dev": "bun --watch run src/index.ts",
         "test": "bun test",
         "build": "bun build src/pipeline.ts --target=bun",
         "format": "prettier --write .",
