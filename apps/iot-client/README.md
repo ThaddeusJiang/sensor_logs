@@ -71,11 +71,6 @@ bun start
 bun dev
 ```
 
-5. Verify setup:
-```bash
-bun verify
-```
-
 ## Data Generation
 
 The client generates simulated sensor data in the following format:

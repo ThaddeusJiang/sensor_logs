@@ -88,6 +88,47 @@ resource "google_bigquery_table" "sensor_logs" {
   ])
 }
 
+# 创建设备表
+resource "google_bigquery_table" "sensors" {
+  dataset_id = "sensor_data"
+  table_id   = "sensors"
+  project    = var.project_id
+
+  schema = jsonencode([
+    {
+      name        = "device_id",
+      type        = "STRING",
+      mode        = "REQUIRED",
+      description = "设备 ID"
+    },
+    {
+      name        = "sensor_id",
+      type        = "STRING",
+      mode        = "REQUIRED",
+      description = "传感器 ID"
+    },
+    {
+      name        = "created_at",
+      type        = "TIMESTAMP",
+      mode        = "REQUIRED",
+      description = "创建时间"
+    },
+    {
+      name        = "updated_at",
+      type        = "TIMESTAMP",
+      mode        = "REQUIRED",
+      description = "更新时间"
+    },
+    {
+      name        = "status",
+      type        = "STRING",
+      mode        = "REQUIRED",
+      description = "设备状态（active/inactive）"
+    }
+  ])
+}
+
+
 # 创建 Pub/Sub topic
 resource "google_pubsub_topic" "sensor_logs_topic" {
   name = "sensor-logs-topic"

@@ -6,10 +6,9 @@
         "apps/*"
     ],
     "scripts": {
-        "iot": "bun run --cwd apps/iot-client start",
-        "iot:dev": "bun run --cwd apps/iot-client dev",
-        "iot:verify": "bun run --cwd apps/iot-client verify",
-        "bq": "bun run --cwd apps/bigquery-worker start",
-        "bg:dev": "bun run --cwd apps/bigquery-worker dev"
+        "iot:simulator": "bun run --cwd apps/iot-client dev",
+        "setup:init-sensors": "bun run --cwd apps/bigquery-worker init-sensors",
+        "bigquery:sync-logs": "bun run --cwd apps/bigquery-worker dev",
+        "bigquery:monitor": "bun run --cwd apps/bigquery-monitor dev"
     }
 }

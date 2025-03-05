@@ -1,5 +1,6 @@
 
 import { PubSub } from '@google-cloud/pubsub';
+import { fetchDevices } from './devices';
 
 // 验证环境变量
 const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
@@ -11,10 +12,6 @@ if (!credentialsPath) {
 const config = {
     projectId: process.env.GOOGLE_CLOUD_PROJECT,
     topicName: 'sensor-logs-topic',
-    // 模拟的传感器数量
-    deviceCount: 3,
-    // 每个设备的传感器数量
-    sensorsPerDevice: 2,
     // 发送间隔 (毫秒)
     interval: 1000,
 };
@@ -69,20 +66,13 @@ async function main() {
     // 验证认证
     await verifyAuthentication();
 
-    // 为每个设备创建定时发送任务
-    for (let deviceNum = 1; deviceNum <= config.deviceCount; deviceNum++) {
-        const deviceId = `device-${deviceNum.toString().padStart(3, '0')}`;
-
-        for (let sensorNum = 1; sensorNum <= config.sensorsPerDevice; sensorNum++) {
-            const sensorId = `${deviceId}-sensor-${sensorNum.toString().padStart(2, '0')}`;
-
-            // 每秒发送数据
-            setInterval(() => {
-                const data = generateSensorData(deviceId, sensorId);
-                publishMessage(data);
-            }, config.interval);
-        }
-    }
+    // 为所有设备创建定时发送任务
+    setInterval(() => {
+        fetchDevices().forEach(({ deviceId, sensorId }) => {
+            const data = generateSensorData(deviceId, sensorId);
+            publishMessage(data);
+        });
+    }, config.interval);
 }
 
 // 错误处理
