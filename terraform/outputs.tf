@@ -9,3 +9,12 @@ output "pubsub_topic" {
 output "service_account_email" {
   value = google_service_account.sensor_logs_sa.email
 }
+
+output "workload_identity_provider" {
+  value = google_iam_workload_identity_pool_provider.github.name
+}
+
+output "artifact_registry_repository" {
+  value       = "bigquery-worker"
+  description = "Name of the Artifact Registry repository"
+}

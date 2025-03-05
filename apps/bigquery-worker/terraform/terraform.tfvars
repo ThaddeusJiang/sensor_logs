@@ -1,3 +1,2 @@
-github_org     = "ThaddeusJiang" # 替换为您的 GitHub 组织名
-github_repo    = "sensor_logs"
-project_number = "974746135323"
+project_id = "dev-iot-452706"
+region     = "asia-northeast1"
