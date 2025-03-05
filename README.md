@@ -1,6 +1,10 @@
-# IoT Data Processing Infrastructure
+# Sensor Logs
 
-This project provides a complete IoT data processing solution, including infrastructure configuration and simulation clients. It uses Terraform to create infrastructure on Google Cloud Platform (GCP) and provides a TypeScript client for simulating IoT device data.
+Sensor logs data processing.
+
+## Documentation
+- 中文: [README-zh.md](README-zh.md)
+- 日本語: [README-ja.md](README-ja.md)
 
 ## Architecture
 
@@ -62,16 +66,21 @@ The project creates and uses the following GCP resources:
 
 Sensor data table structure:
 
-| Field Name | Type | Mode | Description |
-|------------|------|------|-------------|
-| device_id | STRING | REQUIRED | Device ID |
-| sensor_id | STRING | REQUIRED | Sensor ID |
-| timestamp | TIMESTAMP | REQUIRED | Data timestamp |
-| temperature | FLOAT64 | NULLABLE | Temperature |
-| humidity | FLOAT64 | NULLABLE | Humidity |
-| voltage | FLOAT64 | NULLABLE | Voltage |
-| error_code | STRING | NULLABLE | Error code |
-| status | STRING | NULLABLE | Device status |
+```
+CREATE TABLE `sensor_data.sensor_logs`
+(
+    `device_id` STRING,
+    `sensor_id` STRING,
+    `timestamp` TIMESTAMP,
+    `temperature` FLOAT64,
+    `humidity` FLOAT64,
+    `voltage` FLOAT64,
+    `error_code` STRING,
+    `status` STRING
+)
+PARTITION BY DATE(`timestamp`)
+CLUSTER BY `device_id`, `sensor_id`
+```
 
 ## Quick Start
 
@@ -81,65 +90,39 @@ Sensor data table structure:
    - [Terraform](https://developer.hashicorp.com/terraform/downloads)
    - [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 
-2. Configure GCP authentication:
+2. Clone and enter the project:
+   ```bash
+   git clone https://github.com/ThaddeusJiang/sensor_logs.git
+   cd sensor_logs
+   ```
+
+3. Configure GCP authentication:
    ```bash
    gcloud auth application-default login
    ```
 
-3. Clone and enter the project:
+4. Initialize and deploy:
    ```bash
-   git clone https://github.com/your-repo/iot-data-processing.git
-   cd iot-data-processing
-   ```
+   cd terraform
 
-4. Update `terraform.tfvars`:
-   ```hcl
-   project_id = "your-project-id"
-   region     = "asia-northeast1"
-   ```
-
-5. Initialize and deploy:
-   ```bash
    terraform init
    terraform plan
    terraform apply
    ```
 
-### Client Setup
-
-1. Enter client directory:
-   ```bash
-   cd apps/iot-client
-   ```
-
-2. Install dependencies:
-   ```bash
-   bun install
-   ```
-
-3. Configure environment:
-   ```bash
-   cp .env.example .env
-   # Edit .env file with necessary configurations
-   ```
-
-4. Run client:
-   ```bash
-   bun start
-   ```
+5. Run IoT Client, detail in [apps/iot-client](apps/iot-client)
+6. Run BigQuery Worker, detail in [apps/bigquery-worker](apps/bigquery-worker)
 
 ## Project Structure
 
 ```
 .
 ├── README.md
-├── main.tf           # Main Terraform configuration
-├── variables.tf      # Variable definitions
-├── outputs.tf        # Output definitions
-├── terraform.tfvars  # Variable values
 ├── apps/
 │   ├── bigquery-worker/ # BigQuery data processing jobs
-│   └── iot-client/   # TypeScript simulation client
+│   │   ├── terraform/ # Terraform configuration
+│   ├── iot-client/   # TypeScript simulation client
+├── terraform/ # Terraform configuration
 └── .gitignore
 ```
 
@@ -171,13 +154,15 @@ Sensor data table structure:
 
 - Terraform >= 1.0
 - Google Provider >= 6.8.0
-- Node.js >= 16.0.0
-- TypeScript >= 4.0.0
+- Bun >= 1.2.2
+- TypeScript >= 5.0.0
 
 ## Resource Cleanup
 
 To delete all created resources:
 ```bash
+cd terraform
+
 terraform destroy
 ```
 
@@ -191,8 +176,3 @@ Pull Requests are welcome! Please ensure:
 ## License
 
 MIT
-
-## Documentation
-- English: README.md (this file)
-- 中文: [README-zh.md](README-zh.md)
-- 日本語: [README-ja.md](README-ja.md)
