@@ -1,6 +1,6 @@
 {
-    "name": "sensor-logs",
-    "version": "1.0.0",
+    "name": "bigquery-worker",
+    "version": "0.0.1",
     "type": "module",
     "scripts": {
         "start": "bun run src/pipeline.ts",
