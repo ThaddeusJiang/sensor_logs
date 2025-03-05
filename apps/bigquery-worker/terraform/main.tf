@@ -90,6 +90,23 @@ resource "google_cloud_run_v2_service" "worker" {
     }
 
     service_account = data.google_service_account.sensor_logs_sa.email
+
+    labels = {
+      location     = var.region
+      project_id   = var.project_id
+      service_name = "bigquery-worker"
+    }
+
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 10
+    }
+  }
+
+  labels = {
+    location     = var.region
+    project_id   = var.project_id
+    service_name = "bigquery-worker"
   }
 
   lifecycle {
