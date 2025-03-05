@@ -13,10 +13,10 @@ provider "google" {
 }
 
 # 创建 BigQuery dataset
-resource "google_bigquery_dataset" "iot_data" {
-  dataset_id    = "iot_data"
-  friendly_name = "IoT Data Dataset"
-  description   = "Dataset for storing IoT sensor logs"
+resource "google_bigquery_dataset" "sensor_data" {
+  dataset_id    = "sensor_data"
+  friendly_name = "Sensor Data Dataset"
+  description   = "Dataset for storing sensor data"
   location      = "US" # 可以根据需要修改位置
 
   delete_contents_on_destroy = true # 删除 dataset 时同时删除内容
@@ -24,7 +24,7 @@ resource "google_bigquery_dataset" "iot_data" {
 
 # 创建 BigQuery table
 resource "google_bigquery_table" "sensor_logs" {
-  dataset_id = google_bigquery_dataset.iot_data.dataset_id
+  dataset_id = google_bigquery_dataset.sensor_data.dataset_id
   table_id   = "sensor_logs"
 
   deletion_protection = false # 开发环境可以设置为 false，生产环境建议设置为 true
@@ -91,6 +91,44 @@ resource "google_bigquery_table" "sensor_logs" {
 # 创建 Pub/Sub topic
 resource "google_pubsub_topic" "sensor_logs_topic" {
   name = "sensor-logs-topic"
+}
+
+# 创建 Pub/Sub subscription
+resource "google_pubsub_subscription" "sensor_logs_sub" {
+  name  = "sensor-logs-sub-01"
+  topic = google_pubsub_topic.sensor_logs_topic.name
+
+  # 设置消息保留时间为 7 天
+  message_retention_duration = "604800s"
+
+  # 设置确认截止时间为 60 秒
+  ack_deadline_seconds = 60
+
+  # 启用死信队列
+  dead_letter_policy {
+    dead_letter_topic     = "projects/${var.project_id}/topics/${google_pubsub_topic.sensor_logs_dlq.name}"
+    max_delivery_attempts = 5
+  }
+
+  # 重试策略
+  retry_policy {
+    minimum_backoff = "10s"
+    maximum_backoff = "600s"
+  }
+}
+
+# 创建死信队列 topic
+resource "google_pubsub_topic" "sensor_logs_dlq" {
+  name = "sensor-logs-dlq"
+}
+
+# 创建死信队列 subscription
+resource "google_pubsub_subscription" "sensor_logs_dlq_sub" {
+  name  = "sensor-logs-dlq-sub"
+  topic = google_pubsub_topic.sensor_logs_dlq.name
+
+  message_retention_duration = "604800s"
+  ack_deadline_seconds       = 60
 }
 
 # 创建 Service Account

@@ -2,6 +2,27 @@
 
 This project provides a complete IoT data processing solution, including infrastructure configuration and simulation clients. It uses Terraform to create infrastructure on Google Cloud Platform (GCP) and provides a TypeScript client for simulating IoT device data.
 
+## Architecture
+
+```mermaid
+graph LR
+    subgraph "IoT Client"
+        D[Device Simulator]
+    end
+
+    subgraph "Google Cloud Platform"
+        PS[Cloud Pub/Sub]
+        DLQ[Dead Letter Queue]
+        W[BigQuery Worker]
+        BQ[(BigQuery)]
+    end
+
+    D -->|Sensor Data| PS
+    PS -->|Messages| W
+    W -->|Failed Messages| DLQ
+    W -->|Batch Insert| BQ
+```
+
 ## Components
 
 1. **Infrastructure**
@@ -13,17 +34,24 @@ This project provides a complete IoT data processing solution, including infrast
    - Simulates multiple IoT devices
    - Configurable device count and transmission frequency
 
+3. **BigQuery Worker (apps/bigquery-worker)**
+   - Processes messages from Pub/Sub
+   - Batch inserts into BigQuery
+   - Handles errors with Dead Letter Queue
+
 ## Architecture Overview
 
 The project creates and uses the following GCP resources:
 
 1. **BigQuery Dataset & Table**
-   - Dataset: `iot_data`
+   - Dataset: `sensor_data`
    - Table: `sensor_logs` (partitioned by day, clustered by device_id)
    - Stores processed sensor data
 
 2. **Cloud Pub/Sub**
    - Topic: `sensor-logs-topic`
+   - Subscription: `sensor-logs-sub-01`
+   - Dead Letter Queue: `sensor-logs-dlq`
    - Receives real-time sensor data
 
 3. **Service Account**

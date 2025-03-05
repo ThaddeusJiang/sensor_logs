@@ -18,12 +18,14 @@
 プロジェクトは以下の GCP リソースを作成・使用します：
 
 1. **BigQuery データセットとテーブル**
-   - データセット: `iot_data`
+   - データセット: `sensor_data`
    - テーブル: `sensor_logs`（日付でパーティション化、device_id でクラスタリング）
    - 処理済みセンサーデータの保存
 
 2. **Cloud Pub/Sub**
    - トピック: `sensor-logs-topic`
+   - サブスクリプション: `sensor-logs-sub-01`
+   - デッドレターキュー: `sensor-logs-dlq`
    - リアルタイムセンサーデータの受信
 
 3. **サービスアカウント**

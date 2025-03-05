@@ -58,7 +58,7 @@ resource "google_cloud_run_v2_job_iam_member" "worker_invoker" {
 # Workload Identity Federation 配置
 resource "google_iam_workload_identity_pool" "github" {
   project                   = var.project_id
-  workload_identity_pool_id = "github-pool-01"
+  workload_identity_pool_id = "github-pool-02"
   display_name              = "GitHub Actions Pool"
 }
 

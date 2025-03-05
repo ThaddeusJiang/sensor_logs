@@ -18,12 +18,14 @@
 项目创建和使用以下 GCP 资源：
 
 1. **BigQuery Dataset 和表**
-   - Dataset: `iot_data`
+   - Dataset: `sensor_data`
    - 表: `sensor_logs`（按天分区，按 device_id 聚类）
    - 用于存储处理后的传感器数据
 
 2. **Cloud Pub/Sub**
    - 主题: `sensor-logs-topic`
+   - 订阅: `sensor-logs-sub-01`
+   - 死信队列: `sensor-logs-dlq`
    - 用于接收实时传感器数据
 
 3. **服务账号**

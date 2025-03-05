@@ -1,5 +1,5 @@
 output "bigquery_dataset" {
-  value = google_bigquery_dataset.iot_data.dataset_id
+  value = google_bigquery_dataset.sensor_data.dataset_id
 }
 
 output "pubsub_topic" {

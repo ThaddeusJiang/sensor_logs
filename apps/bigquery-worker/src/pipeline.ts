@@ -12,158 +12,99 @@ interface SensorData {
     status?: string;
 }
 
-interface BatchConfig {
-    maxSize: number;
-    maxWaitTime: number; // milliseconds
-}
+// 初始化 BigQuery 客户端
+const bigquery = new BigQuery();
+const pubsub = new PubSub();
 
-interface PipelineState {
-    pubsub: PubSub;
-    bigquery: BigQuery;
-    buffer: SensorData[];
-    lastFlushTime: number;
-    subscription: any;
-    flushInterval: ReturnType<typeof setInterval> | null;
-    topicName: string;
-    datasetId: string;
-    tableId: string;
-    batchConfig: BatchConfig;
-}
+// 配置
+const config = {
+    projectId: process.env.GOOGLE_CLOUD_PROJECT,
+    subscriptionName: 'sensor-logs-sub-01',
+    datasetId: 'sensor_data',
+    tableId: 'sensor_logs',
+    batchSize: 100, // 批量插入的大小
+    batchTimeout: 10000, // 批量插入超时时间（毫秒）
+};
 
-function createPipelineState(
-    topicName: string,
-    datasetId: string,
-    tableId: string,
-    batchConfig: BatchConfig
-): PipelineState {
-    const pubsub = new PubSub();
-    const bigquery = new BigQuery();
+// 消息处理缓冲区
+let messageBuffer: SensorData[] = [];
+let batchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    return {
-        pubsub,
-        bigquery,
-        buffer: [],
-        lastFlushTime: Date.now(),
-        subscription: null,
-        flushInterval: null,
-        topicName,
-        datasetId,
-        tableId,
-        batchConfig,
-    };
-}
-
-async function processMessage(state: PipelineState, message: Message) {
+// 处理消息
+async function handleMessage(message: Message) {
     try {
         const data = JSON.parse(message.data.toString()) as SensorData;
-        state.buffer.push(data);
-        message.ack();
+        messageBuffer.push(data);
 
-        if (shouldFlushBuffer(state)) {
-            await flushBuffer(state);
+        // 如果缓冲区达到批量大小，立即处理
+        if (messageBuffer.length >= config.batchSize) {
+            await processBatch();
         }
+        // 如果还没有设置超时，设置一个
+        else if (!batchTimeout) {
+            batchTimeout = setTimeout(async () => {
+                if (messageBuffer.length > 0) {
+                    await processBatch();
+                }
+            }, config.batchTimeout);
+        }
+
+        // 确认消息
+        message.ack();
     } catch (error) {
         console.error('Error processing message:', error);
-        message.nack();
+        message.nack(); // 消息处理失败，拒绝确认
     }
 }
 
-function shouldFlushBuffer(state: PipelineState): boolean {
-    const now = Date.now();
-    return (
-        state.buffer.length >= state.batchConfig.maxSize ||
-        now - state.lastFlushTime >= state.batchConfig.maxWaitTime
-    );
-}
+// 批量处理数据
+async function processBatch() {
+    if (messageBuffer.length === 0) return;
 
-async function flushBuffer(state: PipelineState) {
-    if (state.buffer.length === 0) return;
-
-    const dataToInsert = [...state.buffer];
-    state.buffer = [];
-    state.lastFlushTime = Date.now();
+    const batchToProcess = [...messageBuffer];
+    messageBuffer = [];
+    if (batchTimeout) {
+        clearTimeout(batchTimeout);
+        batchTimeout = null;
+    }
 
     try {
-        await state.bigquery
-            .dataset(state.datasetId)
-            .table(state.tableId)
-            .insert(dataToInsert);
+        // 插入数据到 BigQuery
+        await bigquery
+            .dataset(config.datasetId)
+            .table(config.tableId)
+            .insert(batchToProcess);
 
-        console.log(`Successfully inserted ${dataToInsert.length} rows`);
+        console.log(`Successfully inserted ${batchToProcess.length} rows`);
     } catch (error) {
         console.error('Error inserting data to BigQuery:', error);
-        state.buffer = [...dataToInsert, ...state.buffer];
+        // 可以将失败的数据写入死信队列或错误日志
     }
 }
 
-async function startPipeline(state: PipelineState) {
-    console.log('Starting pipeline...');
-    const subscription = state.pubsub
-        .topic(state.topicName)
-        .subscription(`${state.topicName}-sub`);
+// 启动订阅
+async function startSubscription() {
+    const subscription = pubsub.subscription(config.subscriptionName);
 
-    try {
-        await subscription.get({ autoCreate: true });
-        console.log('Subscription ready');
-    } catch (error) {
-        console.error('Error creating subscription:', error);
-        throw error;
-    }
-
-    state.subscription = subscription.on('message', (message: Message) =>
-        processMessage(state, message)
-    );
-
-    state.flushInterval = setInterval(async () => {
-        if (state.buffer.length > 0) {
-            await flushBuffer(state);
-        }
-    }, state.batchConfig.maxWaitTime);
-
-    console.log('Pipeline started successfully');
-}
-
-async function stopPipeline(state: PipelineState) {
-    console.log('Stopping pipeline...');
-
-    if (state.subscription) {
-        state.subscription.removeAllListeners();
-    }
-
-    if (state.flushInterval) {
-        clearInterval(state.flushInterval);
-    }
-
-    await flushBuffer(state);
-    console.log('Pipeline stopped');
-}
-
-// 修改启动部分
-try {
-    const pipelineState = createPipelineState(
-        'sensor-logs-topic',
-        'iot_data',
-        'sensor_logs',
-        {
-            maxSize: 1000,
-            maxWaitTime: 60 * 1000, // 60 seconds
-        }
-    );
-
-    // 错误处理
-    process.on('SIGINT', async () => {
-        console.log('Stopping pipeline...');
-        await stopPipeline(pipelineState);
-        process.exit(0);
+    subscription.on('message', handleMessage);
+    subscription.on('error', error => {
+        console.error('Subscription error:', error);
     });
 
-    process.on('unhandledRejection', (error) => {
-        console.error('Unhandled rejection:', error);
-    });
+    console.log(`Listening for messages on ${config.subscriptionName}`);
+}
 
-    // 启动应用
-    startPipeline(pipelineState).catch(console.error);
-} catch (error) {
-    console.error('Failed to start pipeline:', error);
+// 优雅关闭
+process.on('SIGTERM', async () => {
+    console.log('Received SIGTERM. Processing remaining messages...');
+    if (messageBuffer.length > 0) {
+        await processBatch();
+    }
+    process.exit(0);
+});
+
+// 启动服务
+startSubscription().catch(error => {
+    console.error('Failed to start subscription:', error);
     process.exit(1);
-}
+});
