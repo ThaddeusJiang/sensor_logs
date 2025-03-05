@@ -1,4 +1,4 @@
-# Sensor Logs
+# 传感器日志
 
 传感器数据处理系统。
 
@@ -10,8 +10,18 @@
 
 ```mermaid
 graph LR
-    subgraph "IoT Client"
-        D[设备模拟器]
+    subgraph "IoT 设备"
+        subgraph "设备 1"
+            S1[温度传感器]
+            S2[湿度传感器]
+            S3[电压传感器]
+        end
+
+        D2[设备 2]
+
+        D3[设备 3]
+
+        D4[设备 N]
     end
 
     subgraph "Google Cloud Platform"
@@ -21,7 +31,8 @@ graph LR
         BQ[(BigQuery)]
     end
 
-    D -->|传感器数据| PS
+    S1 & S2 & S3 -->|传感器数据| PS
+    D2 & D3 & D4 -->|传感器数据| PS
     PS -->|消息| W
     W -->|失败消息| DLQ
     W -->|批量插入| BQ

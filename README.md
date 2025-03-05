@@ -10,8 +10,18 @@ Sensor logs data processing.
 
 ```mermaid
 graph LR
-    subgraph "IoT Client"
-        D[Device Simulator]
+    subgraph "IoT Devices"
+        subgraph "Device 1"
+            S1[Temperature Sensor]
+            S2[Humidity Sensor]
+            S3[Voltage Sensor]
+        end
+
+        D2[Device 2]
+
+        D3[Device 3]
+
+        D4[Device N]
     end
 
     subgraph "Google Cloud Platform"
@@ -21,7 +31,8 @@ graph LR
         BQ[(BigQuery)]
     end
 
-    D -->|Sensor Data| PS
+    S1 & S2 & S3 -->|Sensor Data| PS
+    D2 & D3 & D4 -->|Sensor Data| PS
     PS -->|Messages| W
     W -->|Failed Messages| DLQ
     W -->|Batch Insert| BQ
