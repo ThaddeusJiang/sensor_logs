@@ -10,3 +10,9 @@ variable "project_id" {
   type        = string
   default     = "dev-iot-452706"
 }
+
+variable "project_number" {
+  description = "GCP project number"
+  type        = string
+  default     = "974746135323"
+}
