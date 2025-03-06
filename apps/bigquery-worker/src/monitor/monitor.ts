@@ -51,13 +51,18 @@ export async function checkDevicesStatus(): Promise<void> {
         message: `设备 ${row.device_id} ${row.sensor_id} 离线`
       };
 
-      await topic.publishMessage({
-        data: Buffer.from(JSON.stringify(alertMessage)),
-        attributes: {
-          device_id: row.device_id,
-          sensor_id: row.sensor_id
-        }
-      });
+      try {
+        await topic.publishMessage({
+          data: Buffer.from(JSON.stringify(alertMessage)),
+          attributes: {
+            device_id: row.device_id,
+            sensor_id: row.sensor_id
+          }
+        });
+        console.log(`已发送离线告警消息: device_id: ${row.device_id} sensor_id: ${row.sensor_id}`);
+      } catch (pubsubError) {
+        console.error(`Failed to publish alert for device: ${row.device_id} sensor: ${row.sensor_id}`, pubsubError);
+      }
 
       console.log(`已发送离线告警消息: device_id: ${row.device_id} sensor_id: ${row.sensor_id}`);
     }
