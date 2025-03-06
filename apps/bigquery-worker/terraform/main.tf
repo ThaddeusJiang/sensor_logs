@@ -65,6 +65,12 @@ resource "google_project_iam_member" "pubsub_publisher" {
   member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
 }
 
+resource "google_project_iam_member" "pubsub_subscriber" {
+  project = var.project_id
+  role    = "roles/pubsub.subscriber"
+  member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
+}
+
 
 # Cloud Run Service
 resource "google_cloud_run_v2_service" "worker" {
