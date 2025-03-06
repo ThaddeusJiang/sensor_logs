@@ -11,20 +11,26 @@ export async function startSubscriber() {
         try {
             const alertMessage: AlertMessage = JSON.parse(message.data.toString());
 
-            // TODO: 实现告警发送逻辑
-            console.log('收到设备离线告警:', alertMessage);
+            // TODO: Implement alert notification logic
+            console.log('Received device offline alert:', alertMessage);
 
-            // 确认消息已处理
+            // Acknowledge message as processed
             message.ack();
         } catch (error) {
-            console.error('处理告警消息时发生错误:', error);
+            console.error('Error processing alert message:', error);
             message.nack();
         }
     });
 
     subscription.on('error', error => {
-        console.error('订阅发生错误:', error);
+        console.error('Subscription error:', error);
     });
 
-    console.log('告警订阅服务已启动');
+    console.log('Alert subscription service started');
+    
+    // Return cleanup function
+    return () => {
+        console.log('Closing alert subscription');
+        subscription.removeAllListeners();
+    };
 }
