@@ -3,7 +3,7 @@ import { fetchSensors } from "../models/sensors"
 
 const bigquery = new BigQuery();
 
-async function initDevices() {
+async function initSensors() {
     const sensors = fetchSensors();
     const rows = sensors.map(s => ({
         device_id: s.deviceId,
