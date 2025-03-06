@@ -80,6 +80,16 @@ resource "google_cloud_run_v2_service" "worker" {
         name  = "GOOGLE_CLOUD_PROJECT"
         value = var.project_id
       }
+      
+      env {
+        name  = "PUBSUB_TOPIC"
+        value = google_pubsub_topic.device_offline_alerts.name
+      }
+      
+      env {
+        name  = "PUBSUB_SUBSCRIPTION"
+        value = google_pubsub_subscription.device_offline_alerts_sub.name
+      }
 
       resources {
         limits = {
