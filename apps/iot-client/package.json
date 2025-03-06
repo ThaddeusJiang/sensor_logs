@@ -3,9 +3,8 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "start": "bun run src/index.ts",
-        "dev": "bun --watch run src/index.ts",
-        "verify": "bun run src/verify.ts"
+        "start": "bun run src/simulator.ts",
+        "dev": "bun --watch run src/simulator.ts"
     },
     "dependencies": {
         "@google-cloud/pubsub": "^4.3.2"

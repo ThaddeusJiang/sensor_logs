@@ -1,10 +1,19 @@
-# Sensor Logs
+# IoT Sensor Data Processing System
 
-Sensor logs data processing.
+A system for processing and monitoring data from 300,000 IoT sensors, built on Google Cloud Platform.
 
 ## Documentation
 - 中文: [README-zh.md](README-zh.md)
 - 日本語: [README-ja.md](README-ja.md)
+
+## Features
+
+- Near real-time data processing from 300,000 IoT sensors
+- Sensor monitoring and offline alerts
+- Batch data processing with configurable settings
+- Error handling with Dead Letter Queue
+- Automated infrastructure management with Terraform
+- CI/CD with GitHub Actions
 
 ## Architecture
 
@@ -16,11 +25,8 @@ graph LR
             S2[Humidity Sensor]
             S3[Voltage Sensor]
         end
-
         D2[Device 2]
-
         D3[Device 3]
-
         D4[Device N]
     end
 
@@ -38,23 +44,7 @@ graph LR
     W -->|Batch Insert| BQ
 ```
 
-## Components
-
-1. **Infrastructure**
-   - GCP resources managed with Terraform
-   - Includes BigQuery, Pub/Sub, and necessary IAM configurations
-
-2. **IoT Simulation Client (apps/iot-client)**
-   - TypeScript application
-   - Simulates multiple IoT devices
-   - Configurable device count and transmission frequency
-
-3. **BigQuery Worker (apps/bigquery-worker)**
-   - Processes messages from Pub/Sub
-   - Batch inserts into BigQuery
-   - Handles errors with Dead Letter Queue
-
-## Architecture Overview
+### Architecture Overview
 
 The project creates and uses the following GCP resources:
 
@@ -73,29 +63,31 @@ The project creates and uses the following GCP resources:
    - Used for client applications
    - Includes necessary IAM permissions for Pub/Sub and BigQuery
 
-## Data Model
+## Components
 
-Sensor data table structure:
+1. **Infrastructure** (terraform/)
+   - GCP resources managed with Terraform
+   - BigQuery, Pub/Sub, and IAM configurations
 
-```
-CREATE TABLE `sensor_data.sensor_logs`
-(
-    `device_id` STRING,
-    `sensor_id` STRING,
-    `timestamp` TIMESTAMP,
-    `temperature` FLOAT64,
-    `humidity` FLOAT64,
-    `voltage` FLOAT64,
-    `error_code` STRING,
-    `status` STRING
-)
-PARTITION BY DATE(`timestamp`)
-CLUSTER BY `device_id`, `sensor_id`
-```
+2. **IoT Client** (apps/iot-client/)
+   - Simulates multiple IoT devices
+   - Configurable device count and transmission frequency
+
+3. **BigQuery Worker** (apps/bigquery-worker/)
+   - Processes messages from Pub/Sub
+   - Batch inserts into BigQuery
+   - Handles errors with Dead Letter Queue
+
+
+
+## Prerequisites
+
+- Terraform >= 1.0
+- Google Cloud SDK
+- Bun >= 1.2.2
+- TypeScript >= 5.0.0
 
 ## Quick Start
-
-### Infrastructure Deployment
 
 1. Install prerequisites:
    - [Terraform](https://developer.hashicorp.com/terraform/downloads)
@@ -115,65 +107,52 @@ CLUSTER BY `device_id`, `sensor_id`
 4. Initialize and deploy:
    ```bash
    cd terraform
-
    terraform init
    terraform plan
    terraform apply
    ```
 
-5. Run IoT Client, detail in [apps/iot-client](apps/iot-client)
-6. Run BigQuery Worker, detail in [apps/bigquery-worker](apps/bigquery-worker)
+5. Initialize sensors:
+   ```bash
+   bun run apps/bigquery-worker/src/scripts/init-sensors.ts
+   ```
 
-## Project Structure
+6. Run IoT Client, see details in [apps/iot-client](apps/iot-client)
+7. Run BigQuery Worker, see details in [apps/bigquery-worker](apps/bigquery-worker)
 
+## Data Model
+
+```sql
+CREATE TABLE `sensor_data.sensor_logs` (
+    `device_id` STRING,
+    `sensor_id` STRING,
+    `timestamp` TIMESTAMP,
+    `temperature` FLOAT64,
+    `humidity` FLOAT64,
+    `voltage` FLOAT64,
+    `error_code` STRING,
+    `status` STRING
+)
+PARTITION BY DATE(`timestamp`)
+CLUSTER BY `device_id`, `sensor_id`
 ```
-.
-├── README.md
-├── apps/
-│   ├── bigquery-worker/ # BigQuery data processing jobs
-│   │   ├── terraform/ # Terraform configuration
-│   ├── iot-client/   # TypeScript simulation client
-├── terraform/ # Terraform configuration
-└── .gitignore
+
+```sql
+CREATE TABLE `sensor_data.sensors`
+(
+    `device_id` STRING,
+    `sensor_id` STRING,
+    `created_at` TIMESTAMP,
+    `updated_at` TIMESTAMP,
+    `status` STRING
+)
 ```
-
-## Performance Optimization
-
-1. BigQuery Table Optimization:
-   - Daily partitioning (timestamp)
-   - Clustering by device_id
-   - Query performance and cost optimization
-
-2. Client Optimization:
-   - Batch message sending
-   - Configurable retry mechanism
-   - Error handling and logging
-
-## Security Considerations
-
-1. Service Account Permissions:
-   - Follows principle of least privilege
-   - Main permissions:
-     - `roles/pubsub.publisher`
-     - `roles/bigquery.dataEditor`
-
-2. Authentication:
-   - Uses service account key files
-   - Supports environment variables
-
-## Version Requirements
-
-- Terraform >= 1.0
-- Google Provider >= 6.8.0
-- Bun >= 1.2.2
-- TypeScript >= 5.0.0
 
 ## Resource Cleanup
 
 To delete all created resources:
 ```bash
 cd terraform
-
 terraform destroy
 ```
 

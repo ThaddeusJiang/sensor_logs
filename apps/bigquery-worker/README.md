@@ -107,26 +107,6 @@ ENV LISTEN_ON_PORT=false
 CMD ["bun", "start"]
 ```
 
-## Data Model
-
-Sensor data structure:
-```typescript
-interface SensorData {
-    device_id: string;      // Unique device identifier
-    sensor_id: string;      // Sensor identifier
-    timestamp: string;      // Data timestamp
-    temperature?: number;   // Temperature reading
-    humidity?: number;      // Humidity reading
-    voltage?: number;       // Voltage reading
-    error_code?: string;    // Error code if any
-    status?: string;        // Device status
-}
-```
-
-BigQuery table schema:
-- Partitioned by day using `timestamp` field
-- Clustered by `device_id` for query optimization
-
 ## Performance Considerations
 
 - Uses batch processing to optimize BigQuery insertions

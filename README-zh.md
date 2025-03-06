@@ -1,6 +1,4 @@
-# 传感器日志
-
-传感器数据处理系统。
+# IoT 传感器 数据处理系统
 
 ## 文档
 - English: [README.md](README.md)
@@ -42,7 +40,7 @@ graph LR
 
 1. **基础设施**
    - 使用 Terraform 管理的 GCP 资源
-   - 包括 BigQuery、Pub/Sub 和必要的 IAM 配置
+   - 包括 BigQuery、Pub/Sub、Cloud Run 等
 
 2. **IoT 模拟客户端 (apps/iot-client)**
    - TypeScript 应用
@@ -53,10 +51,12 @@ graph LR
    - 处理来自 Pub/Sub 的消息
    - 批量插入到 BigQuery
    - 使用死信队列处理错误
+   - 监控传感器离线状态
+   - 发送告警消息到 Slack
 
 ## 数据模型
 
-传感器数据表结构：
+### 传感器数据表结构：
 
 ```sql
 CREATE TABLE `sensor_data.sensor_logs`
@@ -68,6 +68,21 @@ CREATE TABLE `sensor_data.sensor_logs`
     `humidity` FLOAT64,
     `voltage` FLOAT64,
     `error_code` STRING,
+    `status` STRING
+)
+PARTITION BY DATE(`timestamp`)
+CLUSTER BY `device_id`, `sensor_id`
+```
+
+### 传感器表结构：
+
+```sql
+CREATE TABLE `sensor_data.sensors`
+(
+    `device_id` STRING,
+    `sensor_id` STRING,
+    `created_at` TIMESTAMP,
+    `updated_at` TIMESTAMP,
     `status` STRING
 )
 PARTITION BY DATE(`timestamp`)

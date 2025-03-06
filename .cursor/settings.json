@@ -1,0 +1,16 @@
+{
+    "javascript.preferences.runtime": "bun",
+    "typescript.preferences.runtime": "bun",
+    "editor.preferredLanguages": [
+        "typescript",
+        "javascript"
+    ],
+    "editor.suggestLanguages": [
+        "typescript"
+    ],
+    "editor.disabledLanguages": [
+        "python"
+    ],
+    "typescript.suggest.enabled": true,
+    "python.suggest.enabled": false
+}

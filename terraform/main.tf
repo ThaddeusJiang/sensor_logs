@@ -88,6 +88,46 @@ resource "google_bigquery_table" "sensor_logs" {
   ])
 }
 
+# 创建设备表
+resource "google_bigquery_table" "sensors" {
+  dataset_id = google_bigquery_dataset.sensor_data.dataset_id
+  table_id   = "sensors"
+
+  schema = jsonencode([
+    {
+      name        = "device_id",
+      type        = "STRING",
+      mode        = "REQUIRED",
+      description = "设备 ID"
+    },
+    {
+      name        = "sensor_id",
+      type        = "STRING",
+      mode        = "REQUIRED",
+      description = "传感器 ID"
+    },
+    {
+      name        = "created_at",
+      type        = "TIMESTAMP",
+      mode        = "REQUIRED",
+      description = "创建时间"
+    },
+    {
+      name        = "updated_at",
+      type        = "TIMESTAMP",
+      mode        = "REQUIRED",
+      description = "更新时间"
+    },
+    {
+      name        = "status",
+      type        = "STRING",
+      mode        = "REQUIRED",
+      description = "设备状态（active/inactive）"
+    }
+  ])
+}
+
+
 # 创建 Pub/Sub topic
 resource "google_pubsub_topic" "sensor_logs_topic" {
   name = "sensor-logs-topic"
@@ -139,7 +179,7 @@ resource "google_service_account" "sensor_logs_sa" {
 }
 
 # 为服务账号添加项目级别的权限
-resource "google_project_iam_member" "project_viewer" {
+resource "google_project_iam_member" "pubsub_viewer" {
   project = var.project_id
   role    = "roles/pubsub.viewer"
   member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
@@ -192,7 +232,7 @@ resource "google_service_account_iam_member" "github_workload_identity" {
 }
 
 # 创建 Artifact Registry 仓库
-resource "google_artifact_registry_repository" "worker" {
+resource "google_artifact_registry_repository" "bigquery_worker" {
   project       = var.project_id
   location      = var.region
   repository_id = "bigquery-worker"
@@ -213,16 +253,16 @@ resource "google_project_iam_member" "cloud_run_developer" {
   member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
 }
 
-# 添加 Service Account User 权限
-resource "google_project_iam_member" "service_account_user" {
-  project = var.project_id
-  role    = "roles/iam.serviceAccountUser"
-  member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
-}
-
 # 添加 Cloud Run Admin 权限
 resource "google_project_iam_member" "cloud_run_admin" {
   project = var.project_id
   role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
+}
+
+# 添加 Service Account User 权限
+resource "google_project_iam_member" "service_account_user" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.sensor_logs_sa.email}"
 }

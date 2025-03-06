@@ -50,8 +50,8 @@ jobs:
           REGION: asia-northeast1
           PROJECT_ID: dev-iot-452706
         run: |
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }} .
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }}
-          docker tag $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:${{ github.sha }} \
-            $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:latest
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker/worker:latest
+          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:${{ github.sha }} .
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:${{ github.sha }}
+          docker tag $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:${{ github.sha }} \
+            $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:latest
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:latest

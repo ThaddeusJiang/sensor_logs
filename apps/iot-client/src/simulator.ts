@@ -1,5 +1,7 @@
 
 import { PubSub } from '@google-cloud/pubsub';
+import { fetchSensors } from './mock';
+
 
 // 验证环境变量
 const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
@@ -11,10 +13,6 @@ if (!credentialsPath) {
 const config = {
     projectId: process.env.GOOGLE_CLOUD_PROJECT,
     topicName: 'sensor-logs-topic',
-    // 模拟的传感器数量
-    deviceCount: 3,
-    // 每个设备的传感器数量
-    sensorsPerDevice: 2,
     // 发送间隔 (毫秒)
     interval: 1000,
 };
@@ -36,10 +34,10 @@ async function verifyAuthentication() {
 }
 
 // 生成随机数据
-function generateSensorData(deviceId: string, sensorId: string): any {
+function generateSensorData(device_id: string, sensor_id: string): any {
     return {
-        device_id: deviceId,
-        sensor_id: sensorId,
+        device_id: device_id,
+        sensor_id: sensor_id,
         timestamp: new Date().toISOString(),
         temperature: 20 + Math.random() * 10, // 20-30℃
         humidity: 40 + Math.random() * 20,    // 40-60%
@@ -69,20 +67,19 @@ async function main() {
     // 验证认证
     await verifyAuthentication();
 
-    // 为每个设备创建定时发送任务
-    for (let deviceNum = 1; deviceNum <= config.deviceCount; deviceNum++) {
-        const deviceId = `device-${deviceNum.toString().padStart(3, '0')}`;
+    const deviceSensors = fetchSensors();
 
-        for (let sensorNum = 1; sensorNum <= config.sensorsPerDevice; sensorNum++) {
-            const sensorId = `${deviceId}-sensor-${sensorNum.toString().padStart(2, '0')}`;
-
-            // 每秒发送数据
-            setInterval(() => {
-                const data = generateSensorData(deviceId, sensorId);
+    // 为所有设备创建定时发送任务
+    setInterval(() => {
+        deviceSensors.forEach(({ device_id, sensor_id }) => {
+            try {
+                const data = generateSensorData(device_id, sensor_id);
                 publishMessage(data);
-            }, config.interval);
-        }
-    }
+            } catch (error) {
+                console.error(`Error generating or publishing data for device ${device_id}, sensor ${sensor_id}:`, error);
+            }
+        });
+    }, config.interval);
 }
 
 // 错误处理
