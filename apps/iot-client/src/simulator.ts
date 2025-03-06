@@ -86,8 +86,12 @@ async function main() {
     // 为所有设备创建定时发送任务
     setInterval(() => {
         deviceSensors.forEach(({ deviceId, sensorId }) => {
-            const data = generateSensorData(deviceId, sensorId);
-            publishMessage(data);
+            try {
+                const data = generateSensorData(deviceId, sensorId);
+                publishMessage(data);
+            } catch (error) {
+                console.error(`Error generating or publishing data for device ${deviceId}, sensor ${sensorId}:`, error);
+            }
         });
     }, config.interval);
 }
