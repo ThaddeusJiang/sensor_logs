@@ -18,7 +18,7 @@ output "workload_identity_provider" {
 }
 
 output "artifact_registry_repository" {
-  value = google_artifact_registry_repository.bigquery_worker.name
+  value = google_artifact_registry_repository.sensor_logs.name
 }
 
 output "pubsub_topics" {

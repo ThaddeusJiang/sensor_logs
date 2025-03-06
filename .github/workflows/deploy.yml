@@ -7,6 +7,10 @@ on:
       - 'apps/bigquery-worker/**'
       - '.github/workflows/deploy.yml'
 
+env:
+  REGION: asia-northeast1
+  PROJECT_ID: dev-iot-452706
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -42,16 +46,15 @@ jobs:
 
       - name: Configure Docker
         run: |
-          gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
       - name: Build and Push Docker image
         working-directory: ./apps/bigquery-worker
         env:
-          REGION: asia-northeast1
-          PROJECT_ID: dev-iot-452706
+          IMAGE_NAME: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/sensor-logs/bigquery-worker
         run: |
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:${{ github.sha }} .
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:${{ github.sha }}
-          docker tag $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:${{ github.sha }} \
-            $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:latest
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/bigquery-worker:latest
+          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.IMAGE_NAME }}:latest

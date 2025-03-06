@@ -79,7 +79,7 @@ resource "google_cloud_run_v2_service" "bigquery_worker" {
 
   template {
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/bigquery-worker:latest"
+      image = "${var.region}-docker.pkg.dev/${var.project_id}/sensor-logs/bigquery-worker:latest"
 
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
