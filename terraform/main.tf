@@ -232,10 +232,10 @@ resource "google_service_account_iam_member" "github_workload_identity" {
 }
 
 # 创建 Artifact Registry 仓库
-resource "google_artifact_registry_repository" "bigquery_worker" {
+resource "google_artifact_registry_repository" "sensor_logs" {
   project       = var.project_id
   location      = var.region
-  repository_id = "bigquery-worker"
+  repository_id = "sensor-logs"
   format        = "DOCKER"
 }
 
