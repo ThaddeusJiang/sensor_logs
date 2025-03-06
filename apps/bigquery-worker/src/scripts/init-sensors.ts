@@ -1,13 +1,13 @@
 import { BigQuery } from '@google-cloud/bigquery';
-import { fetchSensors } from "../models/sensors"
+import { fetchSensors } from "../mock/sensors"
 
 const bigquery = new BigQuery();
 
 async function initSensors() {
     const sensors = fetchSensors();
     const rows = sensors.map(s => ({
-        device_id: s.deviceId,
-        sensor_id: s.sensorId,
+        device_id: s.device_id,
+        sensor_id: s.sensor_id,
         created_at: new Date(),
         updated_at: new Date(),
         status: 'active'

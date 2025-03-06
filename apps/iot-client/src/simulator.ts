@@ -1,12 +1,7 @@
 
 import { PubSub } from '@google-cloud/pubsub';
+import { fetchSensors } from './mock';
 
-const mock = {
-    // 模拟的传感器数量
-    deviceCount: 2,
-    // 每个设备的传感器数量
-    sensorsPerDevice: 2,
-}
 
 // 验证环境变量
 const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
@@ -39,10 +34,10 @@ async function verifyAuthentication() {
 }
 
 // 生成随机数据
-function generateSensorData(deviceId: string, sensorId: string): any {
+function generateSensorData(device_id: string, sensor_id: string): any {
     return {
-        device_id: deviceId,
-        sensor_id: sensorId,
+        device_id: device_id,
+        sensor_id: sensor_id,
         timestamp: new Date().toISOString(),
         temperature: 20 + Math.random() * 10, // 20-30℃
         humidity: 40 + Math.random() * 20,    // 40-60%
@@ -72,25 +67,16 @@ async function main() {
     // 验证认证
     await verifyAuthentication();
 
-    const deviceSensors: Array<{ deviceId: string, sensorId: string }> = [];
-
-    for (let deviceNum = 1; deviceNum <= mock.deviceCount; deviceNum++) {
-        const deviceId = `device-${deviceNum.toString().padStart(6, '0')}`;
-
-        for (let sensorNum = 1; sensorNum <= mock.sensorsPerDevice; sensorNum++) {
-            const sensorId = `sensor-${sensorNum.toString().padStart(10, '0')}`;
-            deviceSensors.push({ deviceId, sensorId });
-        }
-    }
+    const deviceSensors = fetchSensors();
 
     // 为所有设备创建定时发送任务
     setInterval(() => {
-        deviceSensors.forEach(({ deviceId, sensorId }) => {
+        deviceSensors.forEach(({ device_id, sensor_id }) => {
             try {
-                const data = generateSensorData(deviceId, sensorId);
+                const data = generateSensorData(device_id, sensor_id);
                 publishMessage(data);
             } catch (error) {
-                console.error(`Error generating or publishing data for device ${deviceId}, sensor ${sensorId}:`, error);
+                console.error(`Error generating or publishing data for device ${device_id}, sensor ${sensor_id}:`, error);
             }
         });
     }, config.interval);
