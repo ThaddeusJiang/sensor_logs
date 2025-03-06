@@ -27,8 +27,8 @@ async function initSensors() {
 
 // 如果直接运行此文件则执行初始化
 if (require.main === module) {
-    initDevices().catch(error => {
-        console.error('初始化失败:', error);
+    initSensors().catch(error => {
+        console.error('Initialization failed:', error);
         process.exit(1);
     });
 }
