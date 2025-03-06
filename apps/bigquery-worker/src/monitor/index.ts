@@ -1,10 +1,11 @@
-import { checkDevicesStatus } from './monitor';
+import { checkSensorsStatus } from './monitor';
+import { subscribeSensorOffline } from './subscriber';
 
 const CHECK_INTERVAL = 60000; // 每分钟检查一次
 
 async function monitorDevices() {
     try {
-        await checkDevicesStatus();
+        await checkSensorsStatus();
     } catch (error) {
         console.error('监控过程发生错误:', error);
     }
@@ -12,7 +13,9 @@ async function monitorDevices() {
 
 // 初始化并启动监控
 export async function startMonitoring() {
+    // 订阅离线告警
+    await subscribeSensorOffline();
+
     // 启动定时监控
     setInterval(monitorDevices, CHECK_INTERVAL);
-    monitorDevices(); // 立即开始第一次检查
 }

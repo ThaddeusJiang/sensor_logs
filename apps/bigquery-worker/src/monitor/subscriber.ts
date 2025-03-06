@@ -1,18 +1,20 @@
 import { PubSub } from '@google-cloud/pubsub';
 import { AlertMessage } from './types';
 
-const pubsub = new PubSub();
-const subscriptionName = 'device-alerts-sub';
+import { sendAlert } from './alert';
+import { Topics } from './topics';
 
-export async function startSubscriber() {
-    const subscription = pubsub.subscription(subscriptionName);
+const pubsub = new PubSub();
+
+export async function subscribeSensorOffline() {
+    const subscription_name = Topics.sensor_offline.subscription
+
+    const subscription = pubsub.subscription(subscription_name);
 
     subscription.on('message', message => {
         try {
             const alertMessage: AlertMessage = JSON.parse(message.data.toString());
-
-            // TODO: Implement alert notification logic
-            console.log('Received device offline alert:', alertMessage);
+            sendAlert(alertMessage);
 
             // Acknowledge message as processed
             message.ack();
@@ -26,11 +28,11 @@ export async function startSubscriber() {
         console.error('Subscription error:', error);
     });
 
-    console.log('Alert subscription service started');
-    
+    console.log(`Listening for messages on ${subscription_name}`);
+
     // Return cleanup function
     return () => {
-        console.log('Closing alert subscription');
+        console.log(`Closing subscription: ${subscription_name}`);
         subscription.removeAllListeners();
     };
 }

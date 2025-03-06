@@ -177,6 +177,32 @@ cd terraform
 terraform destroy
 ```
 
+## Data Model
+
+Sensor data structure:
+```typescript
+interface SensorData {
+    device_id: string;      // Unique device identifier
+    sensor_id: string;      // Sensor identifier
+    timestamp: string;      // Data timestamp
+    temperature?: number;   // Temperature reading
+    humidity?: number;      // Humidity reading
+    voltage?: number;       // Voltage reading
+    error_code?: string;    // Error code if any
+    status?: string;        // Device status
+}
+```
+
+BigQuery table schema:
+- Partitioned by day using `timestamp` field
+- Clustered by `device_id` and `sensor_id` for query optimization
+
+## Init Sensors
+
+```bash
+bun run apps/bigquery-worker/src/scripts/init-sensors.ts
+```
+
 ## Contributing
 
 Pull Requests are welcome! Please ensure:

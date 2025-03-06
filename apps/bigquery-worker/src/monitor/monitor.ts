@@ -1,17 +1,16 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import { PubSub } from '@google-cloud/pubsub';
 import { DeviceStatus, AlertMessage } from './types';
+import { Topics } from './topics';
+
 
 const bigquery = new BigQuery();
 const pubsub = new PubSub();
-const topicName = 'device-offline-alerts';
-const topic = pubsub.topic(topicName);
 
 const OFFLINE_THRESHOLD_MINUTES = 5;
-const MAX_ALERTS_PER_CHECK = 1000; // 限制每次检查的最大告警数量
 
-
-export async function checkDevicesStatus(): Promise<void> {
+export async function checkSensorsStatus(): Promise<void> {
+  console.log('check sensor status');
   // 检查过去 5 分钟内离线的设备
   const query = `
     SELECT
@@ -27,8 +26,6 @@ export async function checkDevicesStatus(): Promise<void> {
         max(log.timestamp) as last_timestamp
       FROM
         \`${process.env.GOOGLE_CLOUD_PROJECT}.sensor_data.sensor_logs\` AS log
-      WHERE
-        log.timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL ${OFFLINE_THRESHOLD_MINUTES} MINUTE)
       GROUP BY
         log.device_id,
         log.sensor_id
@@ -36,11 +33,17 @@ export async function checkDevicesStatus(): Promise<void> {
     ON
       s.device_id = l.device_id AND s.sensor_id = l.sensor_id
     WHERE
-      l.last_timestamp IS NULL AND s.status = 'active'
+      s.status = 'active'
+      AND l.last_timestamp < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL ${OFFLINE_THRESHOLD_MINUTES} MINUTE)
   `;
 
   try {
     const [rows] = await bigquery.query(query);
+
+    if (rows.length === 0) {
+      console.log('all sensors are online');
+      return;
+    }
 
     for (const row of rows) {
       const alertMessage: AlertMessage = {
@@ -52,7 +55,7 @@ export async function checkDevicesStatus(): Promise<void> {
       };
 
       try {
-        await topic.publishMessage({
+        await pubsub.topic(Topics.sensor_offline.topic).publishMessage({
           data: Buffer.from(JSON.stringify(alertMessage)),
           attributes: {
             device_id: row.device_id,
@@ -64,11 +67,6 @@ export async function checkDevicesStatus(): Promise<void> {
         console.error(`Failed to publish alert for device: ${row.device_id} sensor: ${row.sensor_id}`, pubsubError);
       }
 
-      console.log(`已发送离线告警消息: device_id: ${row.device_id} sensor_id: ${row.sensor_id}`);
-    }
-
-    if (rows.length === MAX_ALERTS_PER_CHECK) {
-      console.warn(`警告: 达到每次检查的最大告警数量 ${MAX_ALERTS_PER_CHECK}`);
     }
   } catch (error) {
     console.error('检查设备状态时发生错误:', error);

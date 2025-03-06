@@ -1,6 +1,6 @@
 export function fetchSensors() {
     const mock = {
-        deviceCount: 3,
+        deviceCount: 2,
         sensorsPerDevice: 2,
     }
     const sensors: Array<{ device_id: string, sensor_id: string }> = [];

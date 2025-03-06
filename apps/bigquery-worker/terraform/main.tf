@@ -18,14 +18,14 @@ data "google_service_account" "sensor_logs_sa" {
 }
 
 # 创建 Pub/Sub 主题
-resource "google_pubsub_topic" "device_offline_alerts" {
-  name = "device-offline-alerts"
+resource "google_pubsub_topic" "sensor_offline_alerts" {
+  name = "sensor_offline"
 }
 
 # 创建 Pub/Sub 订阅
-resource "google_pubsub_subscription" "device_offline_alerts_sub" {
-  name  = "device-offline-alerts-sub"
-  topic = google_pubsub_topic.device_offline_alerts.name
+resource "google_pubsub_subscription" "sensor_offline_alerts_sub" {
+  name  = "sensor_offline_sub01"
+  topic = google_pubsub_topic.sensor_offline_alerts.name
 
   # 消息保留7天
   message_retention_duration = "604800s"
@@ -71,12 +71,11 @@ resource "google_project_iam_member" "pubsub_subscriber" {
   member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
 }
 
-
 # Cloud Run Service
-resource "google_cloud_run_v2_service" "worker" {
-  project  = var.project_id
+resource "google_cloud_run_v2_service" "bigquery_worker" {
   name     = "bigquery-worker"
   location = var.region
+  ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
 
   template {
     containers {
@@ -86,15 +85,15 @@ resource "google_cloud_run_v2_service" "worker" {
         name  = "GOOGLE_CLOUD_PROJECT"
         value = var.project_id
       }
-      
+
       env {
         name  = "PUBSUB_TOPIC"
-        value = google_pubsub_topic.device_offline_alerts.name
+        value = google_pubsub_topic.sensor_offline_alerts.name
       }
-      
+
       env {
         name  = "PUBSUB_SUBSCRIPTION"
-        value = google_pubsub_subscription.device_offline_alerts_sub.name
+        value = google_pubsub_subscription.sensor_offline_alerts_sub.name
       }
 
       resources {
@@ -102,51 +101,22 @@ resource "google_cloud_run_v2_service" "worker" {
           cpu    = "1000m"
           memory = "512Mi"
         }
+        startup_cpu_boost = true
       }
-    }
-
-    service_account = data.google_service_account.sensor_logs_sa.email
-
-    labels = {
-      location     = var.region
-      project_id   = var.project_id
-      service_name = "bigquery-worker"
     }
 
     scaling {
       min_instance_count = 0
       max_instance_count = 10
     }
-  }
 
-  labels = {
-    location     = var.region
-    project_id   = var.project_id
-    service_name = "bigquery-worker"
-  }
-
-  lifecycle {
-    prevent_destroy = false
+    service_account = data.google_service_account.sensor_logs_sa.email
   }
 }
 
-# 添加 Artifact Registry 权限
-resource "google_project_iam_member" "artifact_registry_writer" {
+# Artifact Registry 权限
+resource "google_project_iam_member" "artifact_registry_reader" {
   project = var.project_id
-  role    = "roles/artifactregistry.writer"
-  member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
-}
-
-# 添加 Cloud Run 开发者权限
-resource "google_project_iam_member" "cloud_run_developer" {
-  project = var.project_id
-  role    = "roles/run.developer"
-  member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
-}
-
-# 添加 Cloud Run Admin 权限
-resource "google_project_iam_member" "cloud_run_admin" {
-  project = var.project_id
-  role    = "roles/run.admin"
+  role    = "roles/artifactregistry.reader"
   member  = "serviceAccount:${data.google_service_account.sensor_logs_sa.email}"
 }
