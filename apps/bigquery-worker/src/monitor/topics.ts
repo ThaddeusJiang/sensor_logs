@@ -1,5 +1,3 @@
-
-
 export const Topics = {
     sensor_offline: {
         topic: "sensor_offline",
